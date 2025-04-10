@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using CAAP2.Models;
 using CAAP2.Services.Services;
 using CAAP2.Data.MSSQL.OrdersDB;
 using CAAP2.Business.Factories;
-using Microsoft.EntityFrameworkCore;
 
 namespace CAAP2_G3_MN_SC_701.Controllers
 {
@@ -77,12 +77,24 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        private void LoadDropDowns(Order? order = null)
+        {
+            ViewBag.Users = new SelectList(_context.Users.ToList(), "UserID", "FullName", order?.UserID);
+            ViewBag.OrderTypes = new SelectList(_context.OrderTypes.ToList(), "Id", "Name", order?.OrderTypeId);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var order = await _orderService.GetOrderByIdAsync(id);
             if (order == null)
                 return NotFound();
+
+            if (order.Status == "Processed" || order.CreatedDate?.AddMinutes(1) < DateTime.Now)
+            {
+                TempData["Error"] = "Esta orden no puede ser editada porque ya fue procesada o ha pasado más de 1 minuto.";
+                return RedirectToAction(nameof(Index));
+            }
 
             LoadDropDowns(order);
             return View(order);
@@ -92,12 +104,21 @@ namespace CAAP2_G3_MN_SC_701.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Order order)
         {
-            LoadDropDowns(order);
-
             if (!ModelState.IsValid)
             {
                 TempData["Error"] = "Los datos ingresados no son válidos.";
+                LoadDropDowns(order);
                 return View(order);
+            }
+
+            var original = await _orderService.GetOrderByIdAsync(order.OrderID);
+            if (original == null)
+                return NotFound();
+
+            if (original.Status == "Processed" || original.CreatedDate?.AddMinutes(1) < DateTime.Now)
+            {
+                TempData["Error"] = "Esta orden no puede ser modificada porque ya fue procesada o ha pasado más de 1 minuto.";
+                return RedirectToAction(nameof(Index));
             }
 
             await _orderService.UpdateOrderAsync(order);
@@ -111,6 +132,12 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             if (order == null)
                 return NotFound();
 
+            if (order.Status == "Processed" || order.CreatedDate?.AddMinutes(1) < DateTime.Now)
+            {
+                TempData["Error"] = "Esta orden no puede ser eliminada porque ya fue procesada o ha pasado más de 1 minuto.";
+                return RedirectToAction(nameof(Index));
+            }
+
             return View(order);
         }
 
@@ -118,14 +145,18 @@ namespace CAAP2_G3_MN_SC_701.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+                return NotFound();
+
+            if (order.Status == "Processed" || order.CreatedDate?.AddMinutes(1) < DateTime.Now)
+            {
+                TempData["Error"] = "No se puede eliminar esta orden porque ya fue procesada o ha pasado más de 1 minuto.";
+                return RedirectToAction(nameof(Index));
+            }
+
             await _orderService.DeleteOrderAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private void LoadDropDowns(Order? order = null)
-        {
-            ViewData["UserID"] = new SelectList(_context.Users, "UserID", "FullName", order?.UserID);
-            ViewData["OrderTypeId"] = new SelectList(_context.OrderTypes, "Id", "Name", order?.OrderTypeId);
         }
 
         [HttpGet]
@@ -138,5 +169,12 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return PartialView("_OrderDetailsPartial", order);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ProcessOrders()
+        {
+            await _orderService.ProcessOrdersAsync();
+            TempData["ProcessResult"] = "Órdenes procesadas correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
