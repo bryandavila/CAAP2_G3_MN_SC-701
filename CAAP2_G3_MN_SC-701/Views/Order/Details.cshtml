@@ -1,6 +1,7 @@
 ﻿@model CAAP2.Models.Order
 
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Detalle de la Orden";
 }
 
@@ -41,4 +42,4 @@
     </tr>
 </table>
 
-<a asp-action="Index" class="btn btn-secondary">Volver</a>
+<a href="/Order" class="btn btn-secondary">← Volver</a>
