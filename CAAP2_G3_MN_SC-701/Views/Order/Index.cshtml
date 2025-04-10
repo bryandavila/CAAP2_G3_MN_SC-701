@@ -7,7 +7,15 @@
 
 <h2 class="my-3">Lista de Órdenes</h2>
 
-<a href="/Order/Create" class="btn btn-success mb-3">Crear Nueva Orden</a>
+<div class="mb-3 d-flex gap-2">
+    <a href="/Order/Create" class="btn btn-success">Crear Nueva Orden</a>
+    <a href="/Order/ProcessOrders" class="btn btn-primary">Procesar Órdenes</a>
+</div>
+
+@if (TempData["ProcessResult"] != null)
+{
+    <div class="alert alert-info">@TempData["ProcessResult"]</div>
+}
 
 <div class="row">
     <div class="col-md-8">
