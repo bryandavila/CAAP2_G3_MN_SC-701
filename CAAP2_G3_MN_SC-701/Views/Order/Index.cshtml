@@ -1,0 +1,39 @@
+﻿@model IEnumerable<CAAP2.Models.Order>
+
+@{
+    ViewData["Title"] = "Lista de Órdenes";
+}
+
+<h2>Lista de Órdenes</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Detalle</th>
+            <th>Prioridad</th>
+            <th>Monto</th>
+            <th>Estado</th>
+            <th>Tipo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderID</td>
+                <td>@order.User?.FullName</td>
+                <td>@order.OrderDetail</td>
+                <td>@order.Priority</td>
+                <td>@order.TotalAmount.ToString("C")</td>
+                <td>@order.Status</td>
+                <td>@order.OrderType?.Name</td>
+                <td>
+                    <a href="@Url.Action("Details", "Order", new { id = order.OrderID })" class="btn btn-info btn-sm">Ver</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
