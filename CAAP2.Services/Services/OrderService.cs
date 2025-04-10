@@ -4,8 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using CAAP2.Business.Factories;
 using CAAP2.Business.Handlers;
+using CAAP2.Business.Helpers;
 using CAAP2.Models;
+using CAAP2.Repository.Repositories;
 using CAAP2.Repository.Repositories.Interfaces;
+using CAAP2.Business.Helpers;
+
 
 namespace CAAP2.Services.Services
 {
@@ -88,4 +92,5 @@ namespace CAAP2.Services.Services
                 || ((day == DayOfWeek.Friday || day == DayOfWeek.Saturday) && hour is >= 11 and < 23);
         }
     }
+
 }
