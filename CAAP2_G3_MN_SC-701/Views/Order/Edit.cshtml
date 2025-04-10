@@ -1,0 +1,39 @@
+﻿@model CAAP2.Models.Order
+
+@{
+    ViewData["Title"] = "Editar Orden";
+}
+
+<h2>Editar orden</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="OrderID" />
+
+    <div class="form-group">
+        <label asp-for="OrderDetail"></label>
+        <input asp-for="OrderDetail" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TotalAmount"></label>
+        <input asp-for="TotalAmount" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Priority"></label>
+        <input asp-for="Priority" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="OrderTypeId">Tipo de Orden</label>
+        <select asp-for="OrderTypeId" class="form-control" asp-items="ViewBag.OrderTypes"></select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="UserID">Usuario</label>
+        <select asp-for="UserID" class="form-control" asp-items="ViewBag.Users"></select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
