@@ -1,5 +1,7 @@
 using CAAP2.Data.MSSQL.OrdersDB;
 using Microsoft.EntityFrameworkCore;
+using CAAP2.Repository.Repositories;
+using CAAP2.Repository.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,8 @@ builder.Services.AddControllersWithViews();
 // Configurar Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
 
 var app = builder.Build();
 

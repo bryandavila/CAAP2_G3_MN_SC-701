@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CAAP2.Data\CAAP2.Data.csproj" />
+    <ProjectReference Include="..\CAAP2.Repository\CAAP2.Repository.csproj" />
   </ItemGroup>
 
 </Project>
