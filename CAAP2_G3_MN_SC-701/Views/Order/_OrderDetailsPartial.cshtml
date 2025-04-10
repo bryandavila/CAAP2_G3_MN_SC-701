@@ -1,0 +1,13 @@
+﻿@model CAAP2.Models.Order
+
+<table class="table table-bordered">
+    <tr><th>ID</th><td>@Model.OrderID</td></tr>
+    <tr><th>Usuario</th><td>@Model.User?.FullName</td></tr>
+    <tr><th>Email</th><td>@Model.User?.Email</td></tr>
+    <tr><th>Detalle</th><td>@Model.OrderDetail</td></tr>
+    <tr><th>Prioridad</th><td>@Model.Priority</td></tr>
+    <tr><th>Estado</th><td>@Model.Status</td></tr>
+    <tr><th>Monto</th><td>@Model.TotalAmount.ToString("C")</td></tr>
+    <tr><th>Fecha</th><td>@Model.CreatedDate?.ToString("g")</td></tr>
+    <tr><th>Tipo</th><td>@Model.OrderType?.Name</td></tr>
+</table>

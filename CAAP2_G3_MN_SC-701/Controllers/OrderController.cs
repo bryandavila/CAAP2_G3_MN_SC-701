@@ -127,5 +127,16 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             ViewData["UserID"] = new SelectList(_context.Users, "UserID", "FullName", order?.UserID);
             ViewData["OrderTypeId"] = new SelectList(_context.OrderTypes, "Id", "Name", order?.OrderTypeId);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DetailsPartial(int id)
+        {
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order == null)
+                return NotFound();
+
+            return PartialView("_OrderDetailsPartial", order);
+        }
+
     }
 }
