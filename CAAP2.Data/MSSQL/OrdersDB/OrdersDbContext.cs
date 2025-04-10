@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using CAAP2.Models;
+
 
 namespace CAAP2.Data.MSSQL.OrdersDB;
 
