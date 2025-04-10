@@ -79,8 +79,18 @@ namespace CAAP2_G3_MN_SC_701.Controllers
 
         private void LoadDropDowns(Order? order = null)
         {
-            ViewBag.Users = new SelectList(_context.Users.ToList(), "UserID", "FullName", order?.UserID);
-            ViewBag.OrderTypes = new SelectList(_context.OrderTypes.ToList(), "Id", "Name", order?.OrderTypeId);
+            var users = _context.Users.Select(u => new {
+                Id = u.UserID,
+                Name = u.FullName
+            }).ToList();
+
+            var orderTypes = _context.OrderTypes.Select(ot => new {
+                Id = ot.Id,
+                Name = ot.Name
+            }).ToList();
+
+            ViewBag.Users = new SelectList(users, "Id", "Name", order?.UserID);
+            ViewBag.OrderTypes = new SelectList(orderTypes, "Id", "Name", order?.OrderTypeId);
         }
 
         [HttpGet]

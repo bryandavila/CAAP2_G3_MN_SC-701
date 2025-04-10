@@ -9,45 +9,95 @@
 
 <form asp-action="Create" method="post">
     <div class="form-group">
-        <label asp-for="OrderDetail" class="form-label"></label>
+        <label asp-for="OrderDetail" class="form-label">Detalle de la Orden</label>
         <input asp-for="OrderDetail" class="form-control" />
         <span asp-validation-for="OrderDetail" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="TotalAmount" class="form-label"></label>
+        <label asp-for="TotalAmount" class="form-label">Monto Total</label>
         <input asp-for="TotalAmount" class="form-control" />
         <span asp-validation-for="TotalAmount" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Priority" class="form-label"></label>
-        <input asp-for="Priority" class="form-control" />
+        <label asp-for="Priority" class="form-label">Prioridad</label>
+        <select asp-for="Priority" class="form-control">
+            <option value="Normal">Normal</option>
+            <option value="Alta">Alta</option>
+            <option value="Urgente">Urgente</option>
+        </select>
         <span asp-validation-for="Priority" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="OrderTypeId" class="form-label">Tipo de Orden</label>
-        <select asp-for="OrderTypeId" class="form-control" asp-items="ViewBag.OrderTypes">
+        <select asp-for="OrderTypeId" class="form-control">
             <option value="">-- Seleccione --</option>
+            @if (ViewBag.OrderTypes != null)
+            {
+                foreach (var item in (SelectList)ViewBag.OrderTypes)
+                {
+                    <option value="@item.Value">@item.Text</option>
+                }
+            }
         </select>
         <span asp-validation-for="OrderTypeId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="UserID" class="form-label">Usuario</label>
-        <select asp-for="UserID" class="form-control" asp-items="ViewBag.Users">
+        <select asp-for="UserID" class="form-control">
             <option value="">-- Seleccione --</option>
+            @if (ViewBag.Users != null)
+            {
+                foreach (var item in (SelectList)ViewBag.Users)
+                {
+                    <option value="@item.Value">@item.Text</option>
+                }
+            }
         </select>
         <span asp-validation-for="UserID" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Crear</button>
-    <a href="/Order" class="btn btn-secondary">Cancelar</a>
+    <div class="form-actions mt-3">
+        <button type="submit" class="btn btn-primary">Crear</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
 </form>
 
+<!-- Sección de Debug (opcional y oculta) -->
+<div style="display:none;">
+    <h4>Información de Depuración:</h4>
+    <p><strong>Usuarios:</strong> @Json.Serialize(ViewBag.Users)</p>
+    <p><strong>Tipos de Orden:</strong> @Json.Serialize(ViewBag.OrderTypes)</p>
+    <p>Total Usuarios: @(ViewBag.Users != null ? ((SelectList)ViewBag.Users).Count() : 0)</p>
+    <p>Total Tipos: @(ViewBag.OrderTypes != null ? ((SelectList)ViewBag.OrderTypes).Count() : 0)</p>
+</div>
+
+@section Styles {
+    <style>
+        select.form-control {
+            -webkit-appearance: menulist !important;
+            -moz-appearance: menulist !important;
+            appearance: menulist !important;
+        }
+
+            select.form-control option {
+                color: #212529 !important;
+                background: white !important;
+                padding: 5px 10px !important;
+            }
+    </style>
+}
+
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        $(document).ready(function () {
+            console.log("Usuarios:", @Html.Raw(Json.Serialize(ViewBag.Users)));
+            console.log("Tipos de orden:", @Html.Raw(Json.Serialize(ViewBag.OrderTypes)));
+        });
+    </script>
 }
