@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CAAP2.Tests", "CAAP2.Tests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CAAP2.Repository", "CAAP2.Repository\CAAP2.Repository.csproj", "{A0DB1862-4801-49C9-8039-BAB491882893}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CAAP2.Business", "CAAP2.Business\CAAP2.Business.csproj", "{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{A0DB1862-4801-49C9-8039-BAB491882893}.Release|x64.Build.0 = Release|Any CPU
 		{A0DB1862-4801-49C9-8039-BAB491882893}.Release|x86.ActiveCfg = Release|Any CPU
 		{A0DB1862-4801-49C9-8039-BAB491882893}.Release|x86.Build.0 = Release|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Debug|x64.Build.0 = Debug|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Debug|x86.Build.0 = Debug|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Release|x64.ActiveCfg = Release|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Release|x64.Build.0 = Release|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Release|x86.ActiveCfg = Release|Any CPU
+		{7DA2232E-7363-43A9-A92A-52E9FFAA5C0F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
