@@ -51,7 +51,7 @@
         var selectedOrderTypeId = Model?.OrderTypeId ?? 0;
     }
     <div class="form-group">
-        <label asp-for="OrderTypeId" class="form-label"></label>
+        <label asp-for="OrderTypeId" class="form-label">Tipo de orden</label>
         <select name="OrderTypeId" class="form-control">
             <option value="">-- Seleccione --</option>
             @if (orderTypes != null)
@@ -70,7 +70,7 @@
         var selectedUserId = Model?.UserID ?? 0;
     }
     <div class="form-group">
-        <label asp-for="UserID" class="form-label"></label>
+        <label asp-for="UserID" class="form-label">Usuario</label>
         <select name="UserID" class="form-control">
             <option value="">-- Seleccione --</option>
             @if (users != null)

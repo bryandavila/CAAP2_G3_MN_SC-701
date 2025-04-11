@@ -1,5 +1,7 @@
 ﻿@model CAAP2.Models.Order
 
+@using System.Globalization
+
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Editar Orden";
@@ -7,34 +9,91 @@
 
 <h2>Editar orden</h2>
 
-<form method="post" action="/Order/Edit">
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
     <input type="hidden" name="OrderID" value="@Model.OrderID" />
 
     <div class="form-group">
-        <label for="OrderDetail">Detalle</label>
-        <input name="OrderDetail" value="@Model.OrderDetail" class="form-control" />
+        <label for="OrderDetail" class="form-label">Detalle</label>
+        <input type="text" name="OrderDetail" class="form-control" value="@Model.OrderDetail" />
+        <span asp-validation-for="OrderDetail" class="text-danger"></span>
     </div>
 
+    @{
+        var totalAmountFormatted = Model?.TotalAmount.ToString("0.00", CultureInfo.InvariantCulture) ?? "";
+    }
     <div class="form-group">
-        <label for="TotalAmount">Monto</label>
-        <input name="TotalAmount" value="@Model.TotalAmount" class="form-control" />
+        <label for="TotalAmount" class="form-label">Monto</label>
+        <input type="text" name="TotalAmount" class="form-control" value="@totalAmountFormatted" />
+        <span asp-validation-for="TotalAmount" class="text-danger"></span>
     </div>
 
+    @{
+        var selectedPriority = Model?.Priority ?? "";
+    }
     <div class="form-group">
-        <label for="Priority">Prioridad</label>
-        <input name="Priority" value="@Model.Priority" class="form-control" />
+        <label for="Priority" class="form-label">Prioridad</label>
+        <select name="Priority" class="form-control">
+            <option value="">-- Seleccione --</option>
+            <option value="Low" @(selectedPriority == "Low" ? "selected" : "")>Low</option>
+            <option value="Medium" @(selectedPriority == "Medium" ? "selected" : "")>Medium</option>
+            <option value="High" @(selectedPriority == "High" ? "selected" : "")>High</option>
+        </select>
+        <span asp-validation-for="Priority" class="text-danger"></span>
     </div>
 
+    @* Dropdown manual con name="OrderTypeId" *@
+    @{
+        var orderTypes = ViewBag.OrderTypes as IEnumerable<CAAP2.Models.OrderType>;
+        var selectedOrderTypeId = Model?.OrderTypeId ?? 0;
+    }
     <div class="form-group">
-        <label for="OrderTypeId">Tipo de Orden</label>
-        <select name="OrderTypeId" class="form-control" asp-items="ViewBag.OrderTypes"></select>
+        <label for="OrderTypeId" class="form-label">Tipo de orden</label>
+        <select name="OrderTypeId" class="form-control">
+            <option value="">-- Seleccione --</option>
+            @if (orderTypes != null)
+            {
+                foreach (var ot in orderTypes)
+                {
+                    <option value="@ot.Id" @(ot.Id == selectedOrderTypeId ? "selected" : "")>@ot.Name</option>
+                }
+            }
+        </select>
+        <span asp-validation-for="OrderTypeId" class="text-danger"></span>
     </div>
 
+    @* Dropdown manual con name="UserID" *@
+    @{
+        var users = ViewBag.Users as IEnumerable<CAAP2.Models.User>;
+        var selectedUserId = Model?.UserID ?? 0;
+    }
     <div class="form-group">
-        <label for="UserID">Usuario</label>
-        <select name="UserID" class="form-control" asp-items="ViewBag.Users"></select>
+        <label for="UserID" class="form-label">Usuario</label>
+        <select name="UserID" class="form-control">
+            <option value="">-- Seleccione --</option>
+            @if (users != null)
+            {
+                foreach (var u in users)
+                {
+                    <option value="@u.UserID" @(u.UserID == selectedUserId ? "selected" : "")>@u.FullName</option>
+                }
+            }
+        </select>
+        <span asp-validation-for="UserID" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Guardar cambios</button>
-    <a href="/Order" class="btn btn-secondary">Cancelar</a>
+    <div class="form-actions mt-3">
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
 </form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

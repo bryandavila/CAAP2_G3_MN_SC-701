@@ -155,16 +155,11 @@ namespace CAAP2_G3_MN_SC_701.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Order order)
+        public async Task<IActionResult> Edit(IFormCollection form)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["Error"] = "Los datos ingresados no son válidos.";
-                await LoadDropDowns();
-                return View(order);
-            }
+            int.TryParse(form["OrderID"], out int orderId);
+            var original = await _orderService.GetOrderByIdAsync(orderId);
 
-            var original = await _orderService.GetOrderByIdAsync(order.OrderID);
             if (original == null)
                 return NotFound();
 
@@ -174,9 +169,43 @@ namespace CAAP2_G3_MN_SC_701.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            await _orderService.UpdateOrderAsync(order);
+            original.OrderDetail = form["OrderDetail"];
+            original.Priority = form["Priority"];
+            original.UserID = int.TryParse(form["UserID"], out var uid) ? uid : 0;
+            original.OrderTypeId = int.TryParse(form["OrderTypeId"], out var otid) ? otid : 0;
+
+            if (decimal.TryParse(form["TotalAmount"], NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+            {
+                original.TotalAmount = amount;
+            }
+            else
+            {
+                ModelState.AddModelError("TotalAmount", "El monto debe ser un número válido con punto decimal (Ej: 25.50)");
+            }
+
+            if (original.UserID == 0)
+                ModelState.AddModelError("UserID", "Debe seleccionar un usuario.");
+
+            if (original.OrderTypeId == 0)
+                ModelState.AddModelError("OrderTypeId", "Debe seleccionar un tipo de orden.");
+
+            if (string.IsNullOrWhiteSpace(original.OrderDetail))
+                ModelState.AddModelError("OrderDetail", "Debe escribir un detalle para la orden.");
+
+            if (string.IsNullOrWhiteSpace(original.Priority))
+                ModelState.AddModelError("Priority", "Debe seleccionar una prioridad.");
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Los datos ingresados no son válidos.";
+                await LoadDropDowns();
+                return View(original);
+            }
+
+            await _orderService.UpdateOrderAsync(original);
             return RedirectToAction(nameof(Index));
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
