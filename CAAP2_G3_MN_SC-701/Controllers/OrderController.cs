@@ -5,6 +5,7 @@ using CAAP2.Models;
 using CAAP2.Services.Services;
 using CAAP2.Data.MSSQL.OrdersDB;
 using CAAP2.Business.Factories;
+using System.Globalization;
 
 namespace CAAP2_G3_MN_SC_701.Controllers
 {
@@ -47,65 +48,93 @@ namespace CAAP2_G3_MN_SC_701.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Order order)
+        public async Task<IActionResult> Create(IFormCollection form)
         {
-            LoadDropDowns(order);
+            var order = new Order();
+
+            order.OrderDetail = form["OrderDetail"];
+            order.Priority = form["Priority"];
+            order.CreatedDate = DateTime.Now;
+            order.Status = "Pending";
+
+
+            order.UserID = int.TryParse(form["UserID"], out var uid) ? uid : 0;
+
+            order.OrderTypeId = int.TryParse(form["OrderTypeId"], out var otid) ? otid : 0;
+
+            if (decimal.TryParse(form["TotalAmount"], NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+            {
+                order.TotalAmount = amount;
+            }
+            else
+            {
+                ModelState.AddModelError("TotalAmount", "El monto debe ser un número válido con punto decimal (Ej: 25.50)");
+            }
+
+            if (order.UserID == 0)
+                ModelState.AddModelError("UserID", "Debe seleccionar un usuario.");
+
+            if (order.OrderTypeId == 0)
+                ModelState.AddModelError("OrderTypeId", "Debe seleccionar un tipo de orden.");
+
+            if (string.IsNullOrWhiteSpace(order.OrderDetail))
+                ModelState.AddModelError("OrderDetail", "Debe escribir un detalle para la orden.");
+
+            if (string.IsNullOrWhiteSpace(order.Priority))
+                ModelState.AddModelError("Priority", "Debe seleccionar una prioridad.");
 
             if (!ModelState.IsValid)
             {
                 TempData["Error"] = "Los datos ingresados no son válidos.";
+                await LoadDropDowns();
                 return View(order);
             }
 
-            var orderType = await _context.OrderTypes.FirstOrDefaultAsync(x => x.Id == order.OrderTypeId);
-            if (orderType == null)
-            {
-                ModelState.AddModelError("OrderTypeId", "Tipo de orden no válido.");
-                LoadDropDowns(order);
-                return View(order);
-            }
-
-            var builtOrder = _orderFactory.Create(
-                orderType,
-                order.UserID,
-                order.OrderDetail ?? "",
-                order.TotalAmount,
-                order.Priority ?? "Normal"
-            );
-
-            var success = await _orderService.CreateOrderAsync(builtOrder);
-
-            if (!success)
-            {
-                TempData["Error"] = "La orden no se puede crear fuera del horario permitido.";
-                return View(order);
-            }
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
+
+
 
         private async Task LoadDropDowns(Order? order = null)
         {
             try
             {
-                //var users = _context.Users.ToList();
-                //var orderTypes = _context.OrderTypes.ToList();
-
                 var complex = await _orderService.GetAllDataAsync();
 
-                Console.WriteLine($"🔍 Usuarios encontrados: {complex.OrderUsers.Count()}");
-                Console.WriteLine($"🔍 Tipos de orden encontrados: {complex.OrderTypes.Count()}");
+                ViewBag.Users = complex.OrderUsers != null
+                    ? complex.OrderUsers.Select(u => new User
+                    {
+                        UserID = u.UserID,
+                        FullName = u.FullName
+                    }).ToList()
+                    : new List<User>();
 
-                ViewBag.Users = complex.OrderUsers; //new SelectList(, "UserID", "FullName", order?.UserID);
-                ViewBag.OrderTypes = complex.OrderTypes; // new SelectList(complex.OrderTypes, "Id", "Name", order?.OrderTypeId);
+                ViewBag.OrderTypes = complex.OrderTypes != null
+                    ? complex.OrderTypes.Select(t => new OrderType
+                    {
+                        Id = t.Id,
+                        Name = t.Name
+                    }).ToList()
+                    : new List<OrderType>();
+
+                Console.WriteLine("Usuarios disponibles para dropdown:");
+                foreach (var u in ViewBag.Users as List<User>)
+                {
+                    Console.WriteLine($"🔹 UserID: {u.UserID}, Nombre: {u.FullName}");
+                }
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine("⚠ Error cargando dropdowns: " + ex.Message);
-                ViewBag.Users = new SelectList(Enumerable.Empty<User>(), "UserID", "FullName");
-                ViewBag.OrderTypes = new SelectList(Enumerable.Empty<OrderType>(), "Id", "Name");
+                Console.WriteLine("Error cargando dropdowns: " + ex.Message);
+                ViewBag.Users = new List<User>();
+                ViewBag.OrderTypes = new List<OrderType>();
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -120,7 +149,7 @@ namespace CAAP2_G3_MN_SC_701.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            LoadDropDowns(order);
+            await LoadDropDowns();
             return View(order);
         }
 
@@ -131,7 +160,7 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["Error"] = "Los datos ingresados no son válidos.";
-                LoadDropDowns(order);
+                await LoadDropDowns();
                 return View(order);
             }
 
