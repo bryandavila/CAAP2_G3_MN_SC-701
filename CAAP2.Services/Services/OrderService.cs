@@ -4,12 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CAAP2.Business.Factories;
 using CAAP2.Business.Handlers;
-using CAAP2.Business.Helpers;
 using CAAP2.Models;
 using CAAP2.Repository.Repositories;
 using CAAP2.Repository.Repositories.Interfaces;
-using CAAP2.Business.Helpers;
-
 
 namespace CAAP2.Services.Services
 {
@@ -68,21 +65,34 @@ namespace CAAP2.Services.Services
 
         public async Task ProcessOrdersAsync()
         {
-            var orders = await _orderRepository.GetAllAsync();
+            var allOrders = (await _orderRepository.GetAllAsync()).ToList();
 
-            var sorted = orders.ToList()
-                .OrderByDescending(o => o.User.IsPremium)
+            // Solo procesamos las órdenes pendientes
+            var pendingOrders = allOrders
+                .Where(o => o.Status == "Pending")
+                .OrderByDescending(o => o.User?.IsPremium ?? false)
                 .ThenBy(o => o.Priority)
                 .ThenBy(o => o.CreatedDate)
                 .ToList();
 
+            if (!pendingOrders.Any())
+                return;
+
+            // HANDLERS para procesamiento
             var deliveryHandler = new DeliveryOrderHandler();
             var pickupHandler = new PickupOrderHandler();
-
             deliveryHandler.SetNext(pickupHandler);
 
-            await deliveryHandler.HandleAsync(sorted);
+            await deliveryHandler.HandleAsync(pendingOrders);
+
+            // ACTUALIZAR estado a "Processed"
+            foreach (var order in pendingOrders)
+            {
+                order.Status = "Processed";
+                await _orderRepository.UpdateAsync(order);
+            }
         }
+
 
         public async Task<OrderComplex> GetAllDataAsync()
         {
@@ -104,8 +114,7 @@ namespace CAAP2.Services.Services
             var hour = now.Hour;
 
             return (day is >= DayOfWeek.Sunday and <= DayOfWeek.Thursday && hour is >= 10 and < 21)
-                || ((day == DayOfWeek.Friday || day == DayOfWeek.Saturday) && hour is >= 11 and < 23);
+                || ((day == DayOfWeek.Friday || day == DayOfWeek.Saturday) && hour is >= 11 && hour < 23);
         }
     }
-
 }
