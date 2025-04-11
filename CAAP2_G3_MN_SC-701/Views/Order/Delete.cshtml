@@ -26,9 +26,15 @@
         <dd class="col-sm-10">@Model.User?.FullName</dd>
     </dl>
 
-    <form method="post" action="/Order/DeleteConfirmed">
+    <form asp-action="Delete" method="post">
+        @Html.AntiForgeryToken()
         <input type="hidden" name="OrderID" value="@Model.OrderID" />
         <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a href="/Order" class="btn btn-secondary">Cancelar</a>
+        <a href="/Order/Index/" class="btn btn-secondary">Cancelar</a>
     </form>
+
+
+
+
+
 </div>

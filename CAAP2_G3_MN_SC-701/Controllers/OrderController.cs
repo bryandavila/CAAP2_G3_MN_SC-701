@@ -223,11 +223,17 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return View(order);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(IFormCollection form)
         {
-            var order = await _orderService.GetOrderByIdAsync(id);
+            if (!int.TryParse(form["OrderID"], out int orderId))
+            {
+                TempData["Error"] = "No se pudo identificar la orden a eliminar.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var order = await _orderService.GetOrderByIdAsync(orderId);
             if (order == null)
                 return NotFound();
 
@@ -237,9 +243,13 @@ namespace CAAP2_G3_MN_SC_701.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            await _orderService.DeleteOrderAsync(id);
+            await _orderService.DeleteOrderAsync(orderId);
+            TempData["Success"] = "Orden eliminada correctamente.";
             return RedirectToAction(nameof(Index));
         }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> DetailsPartial(int id)
