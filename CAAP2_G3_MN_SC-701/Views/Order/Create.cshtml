@@ -7,22 +7,40 @@
 
 <h2>Crear nueva orden</h2>
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (@ViewBag.Users != null)
+{
+    <p class="text-success">Usuarios cargados: ViewBag.Users.Count())</p>
+}
+else
+{
+    <p class="text-danger">ViewBag.Users está vacío</p>
+}
+
+
 <form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
     <div class="form-group">
-        <label asp-for="OrderDetail" class="form-label">Detalle de la Orden</label>
-        <input asp-for="OrderDetail" class="form-control" />
+        <label asp-for="OrderDetail" class="form-label"></label>
+        <input asp-for="OrderDetail" class="form-control" placeholder="Ej: 2x Tacos, 1x Soda" title="Detalle de la orden" />
         <span asp-validation-for="OrderDetail" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="TotalAmount" class="form-label">Monto Total</label>
-        <input asp-for="TotalAmount" class="form-control" />
+        <label asp-for="TotalAmount" class="form-label"></label>
+        <input asp-for="TotalAmount" class="form-control" placeholder="Ej: 25.50" title="Monto total de la orden" />
         <span asp-validation-for="TotalAmount" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Priority" class="form-label">Prioridad</label>
-        <select asp-for="Priority" class="form-control">
+        <label asp-for="Priority" class="form-label"></label>
+        <select asp-for="Priority" class="form-control" title="Seleccione la prioridad">
+            <option value="">-- Seleccione --</option>
             <option value="Normal">Normal</option>
             <option value="Alta">Alta</option>
             <option value="Urgente">Urgente</option>
@@ -30,31 +48,31 @@
         <span asp-validation-for="Priority" class="text-danger"></span>
     </div>
 
+    @{
+        var orderTypes = ViewBag.OrderTypes as IEnumerable<CAAP2.Models.OrderType>;
+    }
     <div class="form-group">
-        <label asp-for="OrderTypeId" class="form-label">Tipo de Orden</label>
-        <select asp-for="OrderTypeId" class="form-control">
+        <label asp-for="OrderTypeId" class="form-label"></label>
+        <select asp-for="OrderTypeId" class="form-control" title="Seleccione el tipo de orden">
             <option value="">-- Seleccione --</option>
-            @if (ViewBag.OrderTypes != null)
+            @foreach (var ot in orderTypes)
             {
-                foreach (var item in (SelectList)ViewBag.OrderTypes)
-                {
-                    <option value="@item.Value">@item.Text</option>
-                }
+                <option value="@ot.Id">@ot.Name</option>
             }
         </select>
         <span asp-validation-for="OrderTypeId" class="text-danger"></span>
     </div>
 
+    @{
+        var users = ViewBag.Users as IEnumerable<CAAP2.Models.User>;
+    }
     <div class="form-group">
-        <label asp-for="UserID" class="form-label">Usuario</label>
-        <select asp-for="UserID" class="form-control">
+        <label asp-for="UserID" class="form-label"></label>
+        <select asp-for="UserID" class="form-control" title="Seleccione el usuario">
             <option value="">-- Seleccione --</option>
-            @if (ViewBag.Users != null)
+            @foreach(var u in users)
             {
-                foreach (var item in (SelectList)ViewBag.Users)
-                {
-                    <option value="@item.Value">@item.Text</option>
-                }
+                <option value="">@u.FullName</option>
             }
         </select>
         <span asp-validation-for="UserID" class="text-danger"></span>
@@ -66,38 +84,6 @@
     </div>
 </form>
 
-<!-- Sección de Debug (opcional y oculta) -->
-<div style="display:none;">
-    <h4>Información de Depuración:</h4>
-    <p><strong>Usuarios:</strong> @Json.Serialize(ViewBag.Users)</p>
-    <p><strong>Tipos de Orden:</strong> @Json.Serialize(ViewBag.OrderTypes)</p>
-    <p>Total Usuarios: @(ViewBag.Users != null ? ((SelectList)ViewBag.Users).Count() : 0)</p>
-    <p>Total Tipos: @(ViewBag.OrderTypes != null ? ((SelectList)ViewBag.OrderTypes).Count() : 0)</p>
-</div>
-
-@section Styles {
-    <style>
-        select.form-control {
-            -webkit-appearance: menulist !important;
-            -moz-appearance: menulist !important;
-            appearance: menulist !important;
-        }
-
-            select.form-control option {
-                color: #212529 !important;
-                background: white !important;
-                padding: 5px 10px !important;
-            }
-    </style>
-}
-
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
-
-    <script>
-        $(document).ready(function () {
-            console.log("Usuarios:", @Html.Raw(Json.Serialize(ViewBag.Users)));
-            console.log("Tipos de orden:", @Html.Raw(Json.Serialize(ViewBag.OrderTypes)));
-        });
-    </script>
 }

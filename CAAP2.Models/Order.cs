@@ -1,27 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CAAP2.Models;
-
-public partial class Order
+namespace CAAP2.Models
 {
-    public int OrderID { get; set; }
+    public partial class Order
+    {
+        public int OrderID { get; set; }
 
-    public int UserID { get; set; }
+        public int UserID { get; set; }
 
-    public string? OrderDetail { get; set; }
+        public string? OrderDetail { get; set; }
 
-    public DateTime? CreatedDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
 
-    public string? Priority { get; set; }
+        public string? Priority { get; set; }
 
-    public decimal TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
 
-    public string? Status { get; set; }
+        public string? Status { get; set; }
 
-    public int OrderTypeId { get; set; }
+        public int OrderTypeId { get; set; }
 
-    public virtual OrderType OrderType { get; set; } = null!;
+        [NotMapped]
+        public virtual OrderType? OrderType { get; set; }
 
-    public virtual User User { get; set; } = null!;
+        [NotMapped]
+        public virtual User? User { get; set; }
+    }
 }

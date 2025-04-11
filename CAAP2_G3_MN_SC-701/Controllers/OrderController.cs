@@ -39,9 +39,9 @@ namespace CAAP2_G3_MN_SC_701.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            LoadDropDowns();
+            await LoadDropDowns();
             return View();
         }
 
@@ -58,8 +58,15 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             }
 
             var orderType = await _context.OrderTypes.FirstOrDefaultAsync(x => x.Id == order.OrderTypeId);
+            if (orderType == null)
+            {
+                ModelState.AddModelError("OrderTypeId", "Tipo de orden no válido.");
+                LoadDropDowns(order);
+                return View(order);
+            }
+
             var builtOrder = _orderFactory.Create(
-                orderType!,
+                orderType,
                 order.UserID,
                 order.OrderDetail ?? "",
                 order.TotalAmount,
@@ -77,20 +84,27 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private void LoadDropDowns(Order? order = null)
+        private async Task LoadDropDowns(Order? order = null)
         {
-            var users = _context.Users.Select(u => new {
-                Id = u.UserID,
-                Name = u.FullName
-            }).ToList();
+            try
+            {
+                //var users = _context.Users.ToList();
+                //var orderTypes = _context.OrderTypes.ToList();
 
-            var orderTypes = _context.OrderTypes.Select(ot => new {
-                Id = ot.Id,
-                Name = ot.Name
-            }).ToList();
+                var complex = await _orderService.GetAllDataAsync();
 
-            ViewBag.Users = new SelectList(users, "Id", "Name", order?.UserID);
-            ViewBag.OrderTypes = new SelectList(orderTypes, "Id", "Name", order?.OrderTypeId);
+                Console.WriteLine($"🔍 Usuarios encontrados: {complex.OrderUsers.Count()}");
+                Console.WriteLine($"🔍 Tipos de orden encontrados: {complex.OrderTypes.Count()}");
+
+                ViewBag.Users = complex.OrderUsers; //new SelectList(, "UserID", "FullName", order?.UserID);
+                ViewBag.OrderTypes = complex.OrderTypes; // new SelectList(complex.OrderTypes, "Id", "Name", order?.OrderTypeId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("⚠ Error cargando dropdowns: " + ex.Message);
+                ViewBag.Users = new SelectList(Enumerable.Empty<User>(), "UserID", "FullName");
+                ViewBag.OrderTypes = new SelectList(Enumerable.Empty<OrderType>(), "Id", "Name");
+            }
         }
 
         [HttpGet]

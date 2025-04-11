@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CAAP2.Models\CAAP2.Models.csproj" />
+    <ProjectReference Include="..\CAAP2.Repository\CAAP2.Repository.csproj" />
   </ItemGroup>
 
 </Project>
