@@ -16,6 +16,7 @@ namespace CAAP2.Services.Services
     public interface IOrderService
     {
         Task<IEnumerable<Order>> GetAllOrdersAsync();
+        Task<OrderComplex> GetAllDataAsync();
         Task<Order?> GetOrderByIdAsync(int id);
         Task<bool> CreateOrderAsync(Order order);
         Task UpdateOrderAsync(Order order);
@@ -26,10 +27,14 @@ namespace CAAP2.Services.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IMinimalRepository<OrderType> _minimalOrderType;
+        private readonly IMinimalRepository<User> _minimalUser;
 
-        public OrderService(IOrderRepository orderRepository)
+        public OrderService(IOrderRepository orderRepository, IMinimalRepository<OrderType> minimalOrderType, IMinimalRepository<User> minimalUser)
         {
             _orderRepository = orderRepository;
+            _minimalOrderType = minimalOrderType;
+            _minimalUser = minimalUser;
         }
 
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
@@ -63,9 +68,9 @@ namespace CAAP2.Services.Services
 
         public async Task ProcessOrdersAsync()
         {
-            var orders = (await _orderRepository.GetAllAsync()).ToList();
+            var orders = await _orderRepository.GetAllAsync();
 
-            var sorted = orders
+            var sorted = orders.ToList()
                 .OrderByDescending(o => o.User.IsPremium)
                 .ThenBy(o => o.Priority)
                 .ThenBy(o => o.CreatedDate)
@@ -77,6 +82,16 @@ namespace CAAP2.Services.Services
             deliveryHandler.SetNext(pickupHandler);
 
             await deliveryHandler.HandleAsync(sorted);
+        }
+
+        public async Task<OrderComplex> GetAllDataAsync()
+        {
+            return new OrderComplex
+            {
+                Orders = await _orderRepository.GetAllAsync(),
+                OrderTypes = _minimalOrderType.GetAll(),
+                OrderUsers = _minimalUser.GetAll()
+            };
         }
     }
 

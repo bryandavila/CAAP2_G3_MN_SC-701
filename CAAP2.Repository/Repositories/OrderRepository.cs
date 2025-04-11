@@ -57,5 +57,25 @@ namespace CAAP2.Repository.Repositories
             }
         }
     }
+
+    public interface IMinimalRepository<T> where T : class
+    {
+        IEnumerable<T> GetAll();
+    }
+
+    public class MinimalRepository<T> : IMinimalRepository<T> where T : class
+    {
+        private readonly OrdersDbContext _context;
+        public MinimalRepository(OrdersDbContext context)
+        {
+            _context = context;
+        }
+
+        public IEnumerable<T> GetAll()
+        {
+            return _context.Set<T>().ToList();
+        }
+
+    }
 }
 
