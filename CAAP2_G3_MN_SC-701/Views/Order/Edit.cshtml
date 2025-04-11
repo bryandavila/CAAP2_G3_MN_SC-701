@@ -1,0 +1,40 @@
+﻿@model CAAP2.Models.Order
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Editar Orden";
+}
+
+<h2>Editar orden</h2>
+
+<form method="post" action="/Order/Edit">
+    <input type="hidden" name="OrderID" value="@Model.OrderID" />
+
+    <div class="form-group">
+        <label for="OrderDetail">Detalle</label>
+        <input name="OrderDetail" value="@Model.OrderDetail" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="TotalAmount">Monto</label>
+        <input name="TotalAmount" value="@Model.TotalAmount" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="Priority">Prioridad</label>
+        <input name="Priority" value="@Model.Priority" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label for="OrderTypeId">Tipo de Orden</label>
+        <select name="OrderTypeId" class="form-control" asp-items="ViewBag.OrderTypes"></select>
+    </div>
+
+    <div class="form-group">
+        <label for="UserID">Usuario</label>
+        <select name="UserID" class="form-control" asp-items="ViewBag.Users"></select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="/Order" class="btn btn-secondary">Cancelar</a>
+</form>

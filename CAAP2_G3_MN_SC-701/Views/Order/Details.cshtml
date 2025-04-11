@@ -1,0 +1,45 @@
+﻿@model CAAP2.Models.Order
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Detalle de la Orden";
+}
+
+<h2>Detalle de la Orden #@Model.OrderID</h2>
+
+<table class="table">
+    <tr>
+        <th>Usuario</th>
+        <td>@Model.User?.FullName</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>@Model.User?.Email</td>
+    </tr>
+    <tr>
+        <th>Detalle</th>
+        <td>@Model.OrderDetail</td>
+    </tr>
+    <tr>
+        <th>Fecha de Creación</th>
+        <td>@Model.CreatedDate?.ToString("g")</td>
+    </tr>
+    <tr>
+        <th>Prioridad</th>
+        <td>@Model.Priority</td>
+    </tr>
+    <tr>
+        <th>Monto</th>
+        <td>@Model.TotalAmount.ToString("C")</td>
+    </tr>
+    <tr>
+        <th>Estado</th>
+        <td>@Model.Status</td>
+    </tr>
+    <tr>
+        <th>Tipo</th>
+        <td>@Model.OrderType?.Name</td>
+    </tr>
+</table>
+
+<a href="/Order" class="btn btn-secondary">← Volver</a>

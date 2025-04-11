@@ -1,23 +1,47 @@
+using CAAP2.Data.MSSQL.OrdersDB;
+using Microsoft.EntityFrameworkCore;
+using CAAP2.Repository.Repositories;
+using CAAP2.Repository.Repositories.Interfaces;
+using CAAP2.Services.Services;
+using CAAP2.Business.Factories;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configuración de DbContext
+builder.Services.AddDbContext<OrdersDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("OrdersConnection")));
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Agrega servicios de controllers y vistas (para MVC)
+builder.Services.AddControllersWithViews();
+
+// Configurar Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<OrderFactory>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllers();
+// Rutas por defecto
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Order}/{action=Index}/{id?}");
 
 app.Run();

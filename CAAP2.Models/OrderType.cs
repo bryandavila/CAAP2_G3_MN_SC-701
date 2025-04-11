@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CAAP2.Data.MSSQL.OrdersDB;
+namespace CAAP2.Models;
 
 public partial class OrderType
 {

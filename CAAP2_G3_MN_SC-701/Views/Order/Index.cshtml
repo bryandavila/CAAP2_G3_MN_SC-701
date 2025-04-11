@@ -1,0 +1,88 @@
+﻿@model IEnumerable<CAAP2.Models.Order>
+
+@{
+    ViewData["Title"] = "Lista de Órdenes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="my-3">Lista de Órdenes</h2>
+
+<div class="mb-3 d-flex gap-2">
+    <a href="/Order/Create" class="btn btn-success">Crear Nueva Orden</a>
+    <a href="/Order/ProcessOrders" class="btn btn-primary">Procesar Órdenes</a>
+</div>
+
+@if (TempData["ProcessResult"] != null)
+{
+    <div class="alert alert-info">@TempData["ProcessResult"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+<div class="row">
+    <div class="col-md-8">
+        <table class="table table-striped table-bordered align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Detalle</th>
+                    <th>Prioridad</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>@order.OrderID</td>
+                        <td>@order.User?.FullName</td>
+                        <td>@order.OrderDetail</td>
+                        <td>@order.Priority</td>
+                        <td>@order.TotalAmount.ToString("C")</td>
+                        <td>@order.Status</td>
+                        <td>@order.OrderType?.Name</td>
+                        <td class="text-nowrap">
+                            <a href="#" class="btn btn-info btn-sm me-1" onclick="loadDetails(@order.OrderID)">Ver</a>
+                            <a href="/Order/Edit/@order.OrderID" class="btn btn-warning btn-sm me-1">Editar</a>
+                            <a href="/Order/Delete/@order.OrderID" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-4">
+        <h4>Detalle de Orden</h4>
+        <div id="orderDetailsContainer" class="border p-3 bg-light rounded">
+            <p class="text-muted">Seleccione una orden para ver su detalle.</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadDetails(orderId) {
+            fetch(`/Order/DetailsPartial/${orderId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Error cargando detalles.");
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("orderDetailsContainer").innerHTML = html;
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Ocurrió un error al cargar los detalles de la orden.");
+                });
+        }
+    </script>
+}

@@ -9,6 +9,19 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CAAP2.Business\CAAP2.Business.csproj" />
+    <ProjectReference Include="..\CAAP2.Data\CAAP2.Data.csproj" />
+    <ProjectReference Include="..\CAAP2.Repository\CAAP2.Repository.csproj" />
+    <ProjectReference Include="..\CAAP2.Services\CAAP2.Services.csproj" />
   </ItemGroup>
 
 </Project>
