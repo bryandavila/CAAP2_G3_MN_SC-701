@@ -43,9 +43,19 @@ namespace CAAP2.Repository.Repositories
 
         public async Task UpdateAsync(Order order)
         {
-            _context.Orders.Update(order);
-            await _context.SaveChangesAsync();
+            var existing = await _context.Orders.FindAsync(order.OrderID);
+            if (existing != null)
+            {
+                existing.OrderDetail = order.OrderDetail;
+                existing.TotalAmount = order.TotalAmount;
+                existing.Priority = order.Priority;
+                existing.Status = order.Status;
+                existing.OrderTypeId = order.OrderTypeId;
+                existing.UserID = order.UserID;
+                await _context.SaveChangesAsync();
+            }
         }
+
 
         public async Task DeleteAsync(int id)
         {
@@ -75,7 +85,5 @@ namespace CAAP2.Repository.Repositories
         {
             return _context.Set<T>().ToList();
         }
-
     }
 }
-
