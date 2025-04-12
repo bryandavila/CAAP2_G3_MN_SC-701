@@ -5,6 +5,8 @@ using System.Security.Claims;
 using CAAP2_G3_MN_SC_701.Models;
 using CAAP2.Data.MSSQL.OrdersDB;
 using Microsoft.EntityFrameworkCore;
+using CAAP2.Models;
+using CAAP2.Models.ViewModels;
 
 namespace CAAP2_G3_MN_SC_701.Controllers
 {
@@ -56,6 +58,40 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");
         }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Error en el registro: " + string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                return View(model);
+            }
 
+            if (_context.Users.Any(u => u.Email == model.Email))
+            {
+                ModelState.AddModelError("Email", "Ya existe una cuenta con este correo.");
+                return View(model);
+            }
+
+            var user = new User
+            {
+                FullName = model.FullName,
+                Email = model.Email,
+                IsPremium = model.IsPremium,
+                IsEndUser = model.IsEndUser,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Usuario registrado exitosamente.";
+            return RedirectToAction("Login");
+        }
     }
 }

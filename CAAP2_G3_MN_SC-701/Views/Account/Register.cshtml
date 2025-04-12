@@ -1,0 +1,56 @@
+﻿@model CAAP2.Models.ViewModels.RegisterViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Registro de Usuario";
+}
+
+<h2 class="my-3">Registro de Usuario</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="Register" asp-controller="Account" method="post" autocomplete="off">
+    @Html.AntiForgeryToken()
+
+    <div class="form-group mb-3">
+        <label asp-for="FullName" class="form-label">Ingrese su nombre</label>
+        <input asp-for="FullName" class="form-control" name="FullName" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Email" class="form-label">Ingrese su correo</label>
+        <input asp-for="Email" class="form-control" name="Email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <!-- Checkbox para IsPremium -->
+    <input type="hidden" name="IsPremium" value="false" />
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" name="IsPremium" value="true"
+        @((Model?.IsPremium ?? false) ? "checked" : "") />
+        <label class="form-check-label" for="IsPremium">¿Es usuario premium?</label>
+    </div>
+
+    <!-- Checkbox para IsEndUser -->
+    <input type="hidden" name="IsEndUser" value="false" />
+    <div class="form-check mb-4">
+        <input class="form-check-input" type="checkbox" name="IsEndUser" value="true"
+        @((Model?.IsEndUser ?? false) ? "checked" : "") />
+        <label class="form-check-label" for="IsEndUser">¿Es usuario final?</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Registrarse</button>
+    <a href="/Account/Login" class="btn btn-link">Volver al Login</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
