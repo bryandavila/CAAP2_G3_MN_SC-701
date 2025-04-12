@@ -73,10 +73,9 @@ else
                         <td class="text-nowrap">
                             <a href="#" class="btn btn-info btn-sm me-1" onclick="loadDetails(@order.OrderID)">Ver</a>
                             <a href="/Order/Edit/@order.OrderID" class="btn btn-warning btn-sm me-1">Editar</a>
-                            <a href="/Order/Delete/@order.OrderID" class="btn btn-danger btn-sm me-1">Eliminar</a>
-
                             @if (order.Status == "Pending")
                             {
+                                <button class="btn btn-danger btn-sm me-1 cancelar-btn" data-id="@order.OrderID" id="cancel-@order.OrderID">Cancelar</button>
                                 <button class="btn btn-sm btn-outline-success ejecutar-btn" data-id="@order.OrderID" id="btn-@order.OrderID">Ejecutar</button>
                             }
                             else
@@ -120,9 +119,11 @@ else
                 const id = btn.dataset.id;
                 const statusCell = document.getElementById("status-" + id);
                 const button = document.getElementById("btn-" + id);
+                const cancelBtn = document.getElementById("cancel-" + id);
 
                 button.disabled = true;
                 button.textContent = "Procesando...";
+                if (cancelBtn) cancelBtn.remove();
 
                 const response = await fetch("/Order/ExecuteOrder", {
                     method: "POST",
@@ -145,6 +146,14 @@ else
                     button.disabled = false;
                     button.textContent = "Ejecutar";
                 }
+            });
+        });
+
+        document.querySelectorAll(".cancelar-btn").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const id = btn.dataset.id;
+                if (!confirm("¿Seguro que deseas cancelar esta orden?")) return;
+                window.location.href = `/Order/Delete/${id}`;
             });
         });
     </script>
