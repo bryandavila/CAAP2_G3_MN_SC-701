@@ -20,6 +20,30 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
+@if (ViewBag.ExchangeRate != null)
+{
+    <div class="alert alert-success">
+        <strong>Tipo de cambio (@ViewBag.ExchangeRate.Fecha):</strong>
+        @if (ViewBag.ExchangeRate.Compra != null)
+        {
+            <span>Compra: ₡@(((decimal)ViewBag.ExchangeRate.Compra).ToString("N2"))</span>
+        }
+        else
+        {
+            <span class="text-warning">Compra no disponible</span>
+        }
+
+        |
+        <span>Venta: ₡@(((decimal)ViewBag.ExchangeRate.Venta).ToString("N2"))</span>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">No se pudo obtener el tipo de cambio actual. Intente más tarde.</div>
+}
+
+
+
 
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 

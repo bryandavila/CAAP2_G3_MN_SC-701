@@ -6,6 +6,7 @@ using CAAP2.Services.Services;
 using CAAP2.Data.MSSQL.OrdersDB;
 using CAAP2.Business.Factories;
 using System.Globalization;
+using CAAP2.Services.External;
 
 namespace CAAP2_G3_MN_SC_701.Controllers
 {
@@ -14,18 +15,22 @@ namespace CAAP2_G3_MN_SC_701.Controllers
         private readonly IOrderService _orderService;
         private readonly OrdersDbContext _context;
         private readonly OrderFactory _orderFactory;
+        private readonly IExchangeRateService _exchangeRateService;
 
-        public OrderController(IOrderService orderService, OrdersDbContext context)
+        public OrderController(IOrderService orderService, OrdersDbContext context, IExchangeRateService exchangeRateService)
         {
             _orderService = orderService;
             _context = context;
             _orderFactory = new OrderFactory();
+            _exchangeRateService = exchangeRateService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var orders = await _orderService.GetAllOrdersAsync();
+            var exchange = await _exchangeRateService.GetExchangeRateAsync();
+            ViewBag.ExchangeRate = exchange;
             return View(orders);
         }
 
@@ -268,5 +273,6 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             TempData["ProcessResult"] = "Órdenes procesadas correctamente.";
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

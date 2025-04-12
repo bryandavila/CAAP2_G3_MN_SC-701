@@ -5,6 +5,8 @@ using CAAP2.Repository.Repositories.Interfaces;
 using CAAP2.Services.Services;
 using CAAP2.Business.Factories;
 using CAAP2.Business.Managers;
+using CAAP2.Services.External;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +26,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderManager, OrderManager>();
 builder.Services.AddScoped(typeof(IMinimalRepository<>), typeof(MinimalRepository<>));
+builder.Services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
 builder.Services.AddScoped<OrderFactory>();
 
 var app = builder.Build();
