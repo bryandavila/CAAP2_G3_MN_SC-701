@@ -75,7 +75,7 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             if (day == DayOfWeek.Friday || day == DayOfWeek.Saturday)
             {
                 start = new TimeSpan(11, 0, 0);
-                end = new TimeSpan(23, 0, 0);
+                end = new TimeSpan(23, 59, 0);
             }
             else
             {

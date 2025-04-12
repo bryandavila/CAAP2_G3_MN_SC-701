@@ -26,12 +26,15 @@ namespace CAAP2.Services.Services
         private readonly IOrderRepository _orderRepository;
         private readonly IMinimalRepository<OrderType> _minimalOrderType;
         private readonly IMinimalRepository<User> _minimalUser;
+        private readonly OrderHandlerBase _orderHandler;
 
-        public OrderService(IOrderRepository orderRepository, IMinimalRepository<OrderType> minimalOrderType, IMinimalRepository<User> minimalUser)
+        public OrderService(IOrderRepository orderRepository, IMinimalRepository<OrderType> minimalOrderType, IMinimalRepository<User> minimalUser, OrderHandlerBase? orderHandler = null)
         {
             _orderRepository = orderRepository;
             _minimalOrderType = minimalOrderType;
             _minimalUser = minimalUser;
+            _orderHandler = orderHandler ?? BuildDefaultHandler();
+
         }
 
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
@@ -46,7 +49,7 @@ namespace CAAP2.Services.Services
 
         public async Task<bool> CreateOrderAsync(Order order)
         {
-            if (!OrderTimeValidator.IsValidOrderTime())
+             if (!OrderTimeValidator.IsValidOrderTime())
                 return false;
 
             await _orderRepository.AddAsync(order);
@@ -79,11 +82,8 @@ namespace CAAP2.Services.Services
                 return;
 
             // HANDLERS para procesamiento
-            var deliveryHandler = new DeliveryOrderHandler();
-            var pickupHandler = new PickupOrderHandler();
-            deliveryHandler.SetNext(pickupHandler);
+            await _orderHandler.HandleAsync(pendingOrders);
 
-            await deliveryHandler.HandleAsync(pendingOrders);
 
             // ACTUALIZAR estado a "Processed"
             foreach (var order in pendingOrders)
@@ -102,6 +102,13 @@ namespace CAAP2.Services.Services
                 OrderTypes = _minimalOrderType.GetAll(),
                 OrderUsers = _minimalUser.GetAll()
             };
+        }
+        private static OrderHandlerBase BuildDefaultHandler()
+        {
+            var delivery = new DeliveryOrderHandler();
+            var pickup = new PickupOrderHandler();
+            delivery.SetNext(pickup);
+            return delivery;
         }
     }
 
