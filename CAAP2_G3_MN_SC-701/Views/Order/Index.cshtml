@@ -42,9 +42,6 @@ else
     <div class="alert alert-warning">No se pudo obtener el tipo de cambio actual. Intente más tarde.</div>
 }
 
-
-
-
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 <div class="row">
@@ -65,18 +62,27 @@ else
             <tbody>
                 @foreach (var order in Model)
                 {
-                    <tr>
+                    <tr id="row-@order.OrderID">
                         <td>@order.OrderID</td>
                         <td>@order.User?.FullName</td>
                         <td>@order.OrderDetail</td>
                         <td>@order.Priority</td>
                         <td>@order.TotalAmount.ToString("C")</td>
-                        <td>@order.Status</td>
+                        <td id="status-@order.OrderID">@order.Status</td>
                         <td>@order.OrderType?.Name</td>
                         <td class="text-nowrap">
                             <a href="#" class="btn btn-info btn-sm me-1" onclick="loadDetails(@order.OrderID)">Ver</a>
                             <a href="/Order/Edit/@order.OrderID" class="btn btn-warning btn-sm me-1">Editar</a>
-                            <a href="/Order/Delete/@order.OrderID" class="btn btn-danger btn-sm">Eliminar</a>
+                            <a href="/Order/Delete/@order.OrderID" class="btn btn-danger btn-sm me-1">Eliminar</a>
+
+                            @if (order.Status == "Pending")
+                            {
+                                <button class="btn btn-sm btn-outline-success ejecutar-btn" data-id="@order.OrderID" id="btn-@order.OrderID">Ejecutar</button>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Procesada</span>
+                            }
                         </td>
                     </tr>
                 }
@@ -108,5 +114,38 @@ else
                     alert("Ocurrió un error al cargar los detalles de la orden.");
                 });
         }
+
+        document.querySelectorAll(".ejecutar-btn").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const id = btn.dataset.id;
+                const statusCell = document.getElementById("status-" + id);
+                const button = document.getElementById("btn-" + id);
+
+                button.disabled = true;
+                button.textContent = "Procesando...";
+
+                const response = await fetch("/Order/ExecuteOrder", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ id: parseInt(id) })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    statusCell.textContent = "Processed";
+                    button.remove();
+                    const badge = document.createElement("span");
+                    badge.classList.add("badge", "bg-success");
+                    badge.textContent = "Procesada";
+                    button.parentNode.appendChild(badge);
+                } else {
+                    alert(result.message || "Error al ejecutar la orden");
+                    button.disabled = false;
+                    button.textContent = "Ejecutar";
+                }
+            });
+        });
     </script>
 }

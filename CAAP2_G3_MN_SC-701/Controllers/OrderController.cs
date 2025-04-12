@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CAAP2.Models;
+using CAAP2.Models.DTOs;
 using CAAP2.Services.Services;
 using CAAP2.Data.MSSQL.OrdersDB;
 using CAAP2.Business.Factories;
@@ -274,6 +275,25 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             await _orderService.ProcessOrdersAsync();
             TempData["ProcessResult"] = "Órdenes procesadas correctamente.";
             return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        public async Task<IActionResult> ExecuteOrder([FromBody] ExecuteOrderRequest request)
+        {
+            var order = await _orderService.GetOrderByIdAsync(request.Id);
+
+            if (order == null)
+                return Json(new { success = false, message = "Orden no encontrada" });
+
+            if (order.Status == "Processed")
+                return Json(new { success = false, message = "La orden ya fue procesada" });
+
+            // Simular retardo
+            await Task.Delay(10000);
+
+            order.Status = "Processed";
+            await _orderService.UpdateOrderAsync(order);
+
+            return Json(new { success = true });
         }
 
     }
