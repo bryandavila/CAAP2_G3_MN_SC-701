@@ -7,9 +7,11 @@ using CAAP2.Data.MSSQL.OrdersDB;
 using CAAP2.Business.Factories;
 using System.Globalization;
 using CAAP2.Services.External;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CAAP2_G3_MN_SC_701.Controllers
 {
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;

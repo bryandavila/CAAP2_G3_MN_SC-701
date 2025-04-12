@@ -13,14 +13,34 @@
         body {
             padding: 20px;
         }
+
+        .user-info {
+            font-size: 0.95rem;
+            color: #555;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header class="mb-4">
-            <h1 class="text-primary">CAAP2 - Sistema de Órdenes</h1>
-            <hr />
+        <header class="mb-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="text-primary">CAAP2 - Sistema de Órdenes</h1>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <div class="text-end">
+                    <div class="user-info mb-1">
+                        <span>Hola, <strong>@User.Identity.Name</strong> (<em>@User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value</em>)</span>
+                    </div>
+                    <a href="/Account/Logout" class="btn btn-sm btn-outline-danger">Cerrar sesión</a>
+
+
+                </div>
+            }
         </header>
+
+        <hr />
 
         @RenderBody()
     </div>

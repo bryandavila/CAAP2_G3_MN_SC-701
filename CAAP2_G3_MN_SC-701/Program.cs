@@ -6,6 +6,7 @@ using CAAP2.Services.Services;
 using CAAP2.Business.Factories;
 using CAAP2.Business.Managers;
 using CAAP2.Services.External;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 
 
@@ -28,6 +29,15 @@ builder.Services.AddScoped<IOrderManager, OrderManager>();
 builder.Services.AddScoped(typeof(IMinimalRepository<>), typeof(MinimalRepository<>));
 builder.Services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
 builder.Services.AddScoped<OrderFactory>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
+
+builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 
@@ -43,11 +53,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 // Rutas por defecto
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Order}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

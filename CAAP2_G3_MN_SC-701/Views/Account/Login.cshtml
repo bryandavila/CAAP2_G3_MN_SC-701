@@ -1,0 +1,31 @@
+﻿@model CAAP2_G3_MN_SC_701.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Iniciar sesión</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @Html.ValidationSummary(true)
+    </div>
+}
+
+<form asp-action="Login" asp-controller="Account" method="post" novalidate>
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label asp-for="Email" class="form-label">Ingrese el correo</label>
+        <input type="email" name="Email" class="form-control" />
+
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Ingresar</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
