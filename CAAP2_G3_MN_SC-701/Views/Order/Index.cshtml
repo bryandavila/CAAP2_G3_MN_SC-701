@@ -8,8 +8,14 @@
 <h2 class="my-3">Lista de Órdenes</h2>
 
 <div class="mb-3 d-flex gap-2">
-    <a href="/Order/Create" class="btn btn-success">Crear Nueva Orden</a>
-    <a href="/Order/ProcessOrders" class="btn btn-primary">Procesar Órdenes</a>
+    @if (User.IsInRole("Admin") || User.IsInRole("User"))
+    {
+        <a href="/Order/Create" class="btn btn-success">Crear Nueva Orden</a>
+    }
+    @if (User.IsInRole("Admin"))
+    {
+        <a href="/Order/ProcessOrders" class="btn btn-primary">Procesar Órdenes</a>
+    }
 </div>
 
 @if (TempData["ProcessResult"] != null)
@@ -72,10 +78,16 @@ else
                         <td>@order.OrderType?.Name</td>
                         <td class="text-nowrap">
                             <a href="#" class="btn btn-info btn-sm me-1" onclick="loadDetails(@order.OrderID)">Ver</a>
-                            <a href="/Order/Edit/@order.OrderID" class="btn btn-warning btn-sm me-1">Editar</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a href="/Order/Edit/@order.OrderID" class="btn btn-warning btn-sm me-1">Editar</a>
+                            }
                             @if (order.Status == "Pending")
                             {
-                                <button class="btn btn-danger btn-sm me-1 cancelar-btn" data-id="@order.OrderID" id="cancel-@order.OrderID">Cancelar</button>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <button class="btn btn-danger btn-sm me-1 cancelar-btn" data-id="@order.OrderID" id="cancel-@order.OrderID">Cancelar</button>
+                                }
                                 <button class="btn btn-sm btn-outline-success ejecutar-btn" data-id="@order.OrderID" id="btn-@order.OrderID">Ejecutar</button>
                             }
                             else

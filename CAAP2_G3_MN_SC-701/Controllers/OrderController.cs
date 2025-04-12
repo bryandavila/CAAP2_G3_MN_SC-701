@@ -143,7 +143,7 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -161,6 +161,7 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return View(order);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(IFormCollection form)
@@ -214,7 +215,7 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
@@ -231,6 +232,7 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return View(order);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(IFormCollection form)
