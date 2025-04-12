@@ -64,11 +64,31 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             order.Priority = form["Priority"];
             order.CreatedDate = DateTime.Now;
             order.Status = "Pending";
-
-
             order.UserID = int.TryParse(form["UserID"], out var uid) ? uid : 0;
-
             order.OrderTypeId = int.TryParse(form["OrderTypeId"], out var otid) ? otid : 0;
+
+            var now = DateTime.Now;
+            var day = now.DayOfWeek;
+            var hour = now.TimeOfDay;
+            TimeSpan start, end;
+
+            if (day == DayOfWeek.Friday || day == DayOfWeek.Saturday)
+            {
+                start = new TimeSpan(11, 0, 0);
+                end = new TimeSpan(23, 0, 0);
+            }
+            else
+            {
+                start = new TimeSpan(10, 0, 0);
+                end = new TimeSpan(21, 0, 0);
+            }
+
+            if (hour < start || hour > end)
+            {
+                TempData["Error"] = $"No se pueden registrar órdenes en este horario. Hoy puedes hacerlo entre {start:hh\\:mm} y {end:hh\\:mm}.";
+                await LoadDropDowns();
+                return View(order);
+            }
 
             if (decimal.TryParse(form["TotalAmount"], NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
             {
@@ -104,8 +124,6 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
         private async Task LoadDropDowns(Order? order = null)
         {
             try
@@ -113,27 +131,12 @@ namespace CAAP2_G3_MN_SC_701.Controllers
                 var complex = await _orderService.GetAllDataAsync();
 
                 ViewBag.Users = complex.OrderUsers != null
-                    ? complex.OrderUsers.Select(u => new User
-                    {
-                        UserID = u.UserID,
-                        FullName = u.FullName
-                    }).ToList()
+                    ? complex.OrderUsers.Select(u => new User { UserID = u.UserID, FullName = u.FullName }).ToList()
                     : new List<User>();
 
                 ViewBag.OrderTypes = complex.OrderTypes != null
-                    ? complex.OrderTypes.Select(t => new OrderType
-                    {
-                        Id = t.Id,
-                        Name = t.Name
-                    }).ToList()
+                    ? complex.OrderTypes.Select(t => new OrderType { Id = t.Id, Name = t.Name }).ToList()
                     : new List<OrderType>();
-
-                Console.WriteLine("Usuarios disponibles para dropdown:");
-                foreach (var u in ViewBag.Users as List<User>)
-                {
-                    Console.WriteLine($"🔹 UserID: {u.UserID}, Nombre: {u.FullName}");
-                }
-
             }
             catch (Exception ex)
             {
@@ -258,9 +261,6 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
-
         [HttpGet]
         public async Task<IActionResult> DetailsPartial(int id)
         {
@@ -278,6 +278,7 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             TempData["ProcessResult"] = "Órdenes procesadas correctamente.";
             return RedirectToAction(nameof(Index));
         }
+
         [HttpPost]
         public async Task<IActionResult> ExecuteOrder([FromBody] ExecuteOrderRequest request)
         {
@@ -289,7 +290,6 @@ namespace CAAP2_G3_MN_SC_701.Controllers
             if (order.Status == "Processed")
                 return Json(new { success = false, message = "La orden ya fue procesada" });
 
-            // Simular retardo
             await Task.Delay(10000);
 
             order.Status = "Processed";
@@ -297,6 +297,5 @@ namespace CAAP2_G3_MN_SC_701.Controllers
 
             return Json(new { success = true });
         }
-
     }
 }
